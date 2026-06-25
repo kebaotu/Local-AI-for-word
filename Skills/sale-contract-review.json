@@ -1,0 +1,9 @@
+{
+  "id": "sale-contract-review",
+  "name": "Rà soát hợp đồng mua bán",
+  "description": "Kiểm tra hợp đồng mua bán: giá, điều kiện thanh toán, giao hàng, bảo hành",
+  "context": ["document", "comments"],
+  "prompt": "Hãy rà soát hợp đồng mua bán theo các tiêu chí:\n\n1. Giá trị hợp đồng và điều kiện thanh toán có rõ ràng không?\n2. Điều kiện giao hàng/nhận hàng?\n3. Bảo hành và trách nhiệm sau bán?\n4. Phạt vi phạm có cân bằng không?\n5. Quyền chấm dứt hợp đồng?\n6. Giải quyết tranh chấp?\n7. Số liệu/ngày tháng có nhất quán không?\n8. Placeholder chưa điền?\n9. Rủi ro pháp lý cao?\n\nTrả về JSON với danh sách suggestions.",
+  "outputMode": "suggestions",
+  "defaultAction": "comment"
+}

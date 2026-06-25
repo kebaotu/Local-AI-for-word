@@ -1,0 +1,9 @@
+{
+  "id": "official-letter-review",
+  "name": "Rà soát công văn",
+  "description": "Kiểm tra công văn hành chính: format, văn phong, số liệu, tham chiếu",
+  "context": ["document"],
+  "prompt": "Hãy rà soát công văn theo tiêu chí:\n\n1. Tiêu đề, số hiệu, ngày tháng có đầy đủ không?\n2. Kính gửi/Kính chuyển có đúng không?\n3. Văn phong có trang trọng, hành chính không?\n4. Viết tắt có được giải thích lần đầu không?\n5. Số liệu, ngày tháng có nhất quán không?\n6. Đánh số điều khoản có đúng không?\n7. Tham chiếu văn bản có chính xác không?\n8. Placeholder chưa điền?\n9. Ký hiệu và chữ ký có đủ không?\n\nTrả về JSON suggestions.",
+  "outputMode": "suggestions",
+  "defaultAction": "comment"
+}

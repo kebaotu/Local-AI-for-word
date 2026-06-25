@@ -1,0 +1,22 @@
+# Build output
+LocalWordAI/bin/
+LocalWordAI/obj/
+
+# Visual Studio cache
+.vs/
+*.user
+*.suo
+
+# Private keys - KHONG upload len GitHub
+*.pfx
+
+# NuGet packages (co the restore lai bang nuget restore)
+packages/
+
+# Log files
+*.log
+debug.log
+
+# OS
+Thumbs.db
+desktop.ini

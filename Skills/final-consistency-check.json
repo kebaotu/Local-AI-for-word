@@ -1,0 +1,9 @@
+{
+  "id": "final-consistency-check",
+  "name": "Final Check trước phát hành",
+  "description": "Kiểm tra toàn diện trước khi phát hành tài liệu chính thức",
+  "context": ["document", "comments", "revisions"],
+  "prompt": "Đây là kiểm tra cuối cùng trước khi phát hành. Hãy kiểm tra toàn diện:\n\n1. Placeholder chưa điền?\n2. Comments chưa xử lý?\n3. Tracked changes chưa được accept/reject?\n4. Số liệu, ngày tháng nhất quán toàn bộ tài liệu?\n5. Tên tổ chức, tên người nhất quán?\n6. Thuật ngữ kỹ thuật nhất quán?\n7. Viết tắt có được giải thích lần đầu?\n8. Tham chiếu nội bộ có chính xác?\n9. Đánh số đúng thứ tự?\n10. Rủi ro pháp lý hoặc câu từ mơ hồ?\n\nXếp loại theo mức độ nghiêm trọng: critical > high > medium > low.\nTrả về JSON.",
+  "outputMode": "suggestions",
+  "defaultAction": "highlight"
+}

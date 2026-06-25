@@ -1,0 +1,9 @@
+{
+  "id": "nda-review",
+  "name": "Rà soát NDA",
+  "description": "Kiểm tra NDA: defined terms, thời hạn bảo mật, nghĩa vụ và rủi ro",
+  "context": ["document", "comments", "revisions"],
+  "prompt": "Hãy rà soát tài liệu NDA (Non-Disclosure Agreement) theo các tiêu chí:\n\n1. Defined terms có nhất quán không?\n2. Thời hạn bảo mật có hợp lý và rõ ràng không?\n3. Phạm vi thông tin mật có được định nghĩa rõ không?\n4. Các nghĩa vụ của các bên có cân bằng không?\n5. Điều khoản chấm dứt có rõ ràng không?\n6. Luật áp dụng và giải quyết tranh chấp?\n7. Rủi ro pháp lý nào cần lưu ý?\n8. Placeholder chưa điền?\n\nTrả về JSON với danh sách suggestions theo schema chuẩn.",
+  "outputMode": "suggestions",
+  "defaultAction": "comment"
+}

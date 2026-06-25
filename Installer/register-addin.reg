@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; Đăng ký Local Word AI Add-in với Microsoft Word
+; Chạy file này với quyền Administrator
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\LocalWordAI]
+"Description"="Local AI Assistant for Microsoft Word - Offline"
+"FriendlyName"="Local Word AI"
+"LoadBehavior"=dword:00000003
+"Manifest"="file:///C:\\Program Files\\LocalWordAI\\LocalWordAI.vsto|vstolocal"
