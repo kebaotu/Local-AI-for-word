@@ -16,9 +16,16 @@ namespace LocalWordAI
 
         private void ThisAddIn_Startup(object sender, EventArgs e)
         {
-            Instance = this;
-            Settings = new SettingsService();
-            Settings.Load();
+            try
+            {
+                Instance = this;
+                Settings = new SettingsService();
+                Settings.Load();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("LocalWordAI startup error: " + ex);
+            }
         }
 
         private void ThisAddIn_Shutdown(object sender, EventArgs e)

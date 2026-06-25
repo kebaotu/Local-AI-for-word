@@ -17,6 +17,8 @@
     <Prefer32Bit>false</Prefer32Bit>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateInterval>0</UpdateInterval>
     <SignManifests>true</SignManifests>
     <ManifestCertificateThumbprint>EBB4874F04D62BD6846A076DEA045E2A94E39244</ManifestCertificateThumbprint>
     <ManifestKeyFile>LocalWordAI_TemporaryKey.pfx</ManifestKeyFile>

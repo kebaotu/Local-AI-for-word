@@ -3,10 +3,39 @@
 # Chay bang: powershell -ExecutionPolicy Bypass -File install.ps1
 # ============================================================
 
+param(
+    [switch]$SkipRuntimeCheck = $false,
+    [switch]$ResetOnly = $false
+)
+
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Write-Host "=== Cai dat Local Word AI ===" -ForegroundColor Cyan
+Write-Host "=== Local Word AI - Cai dat / Khoi phuc ===" -ForegroundColor Cyan
+
+# ── Mode: Reset Only ─────────────────────────────────────────
+if ($ResetOnly) {
+    Write-Host "`n[Reset] Chi khoi phuc registry..." -ForegroundColor Yellow
+    $regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI"
+    if (-not (Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }
+    Set-ItemProperty -Path $regPath -Name "LoadBehavior" -Type DWORD -Value 3
+    Set-ItemProperty -Path $regPath -Name "Manifest" -Value ("file:///" + $scriptDir.Replace('\','/') + "/AddIn/LocalWordAI.vsto|vstolocal")
+    Set-ItemProperty -Path $regPath -Name "FriendlyName" -Value "Local Word AI"
+    Set-ItemProperty -Path $regPath -Name "Description" -Value "Local AI Assistant for Word - Offline"
+
+    Remove-Item 'HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item 'HKCU:\Software\Microsoft\Office\15.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue
+
+    $doNotDisableKey = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\DoNotDisableAddinList"
+    if (-not (Test-Path $doNotDisableKey)) { New-Item -Path $doNotDisableKey -Force | Out-Null }
+    Set-ItemProperty -Path $doNotDisableKey -Name "LocalWordAI" -Type DWORD -Value 1
+
+    Write-Host "  LoadBehavior=3, da xoa toan bo Resiliency cache." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "=== Khoi phuc hoan tat! Mo Word binh thuong. ===" -ForegroundColor Green
+    Read-Host "Nhan Enter de thoat"
+    exit 0
+}
 
 # ── 1. Kiem tra va cai VSTO Runtime neu can ──────────────────
 Write-Host "`n[1/5] Kiem tra VSTO Runtime..." -ForegroundColor Yellow
@@ -19,18 +48,21 @@ if ($vstoFound) {
 } else {
     $vstoInstaller = "$scriptDir\vstor_redist.exe"
     if (Test-Path $vstoInstaller) {
-        Write-Host "  Dang cai VSTO Runtime..." -ForegroundColor Yellow
+        Write-Host "  Dang cai VSTO Runtime (offline)..." -ForegroundColor Yellow
         Start-Process -FilePath $vstoInstaller -ArgumentList "/quiet /norestart" -Wait
         Write-Host "  VSTO Runtime da cai xong." -ForegroundColor Green
     } else {
         Write-Host ""
-        Write-Host "  CANH BAO: Thieu VSTO Runtime!" -ForegroundColor Red
-        Write-Host "  Tai file vstor_redist.exe (64-bit, ~38MB) tu:" -ForegroundColor Red
-        Write-Host "    https://aka.ms/vstoruntime" -ForegroundColor Red
-        Write-Host "  Dat file vao cung thu muc voi install.bat, chay lai." -ForegroundColor Red
+        Write-Host "  LOI: Khong tim thay VSTO Runtime!" -ForegroundColor Red
+        Write-Host "  May nay khong co internet. Can tai VSTO Runtime tu may khac:" -ForegroundColor Red
+        Write-Host "    1. Tai: https://aka.ms/vstoruntime" -ForegroundColor Red
+        Write-Host "    2. Luu file vstor_redist.exe vao cung thu muc voi install.bat" -ForegroundColor Red
+        Write-Host "    3. Chay lai install.bat" -ForegroundColor Red
         Write-Host ""
-        $choice = Read-Host "  Tiep tuc cai dat ma khong co VSTO Runtime? (y/n)"
-        if ($choice -ne "y") { exit 1 }
+        if (-not $SkipRuntimeCheck) {
+            Read-Host "Nhan Enter de thoat"
+            exit 1
+        }
     }
 }
 
@@ -40,13 +72,13 @@ $installDir = "$env:LOCALAPPDATA\LocalWordAI"
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 Write-Host "  Thu muc: $installDir"
 
-Get-ChildItem "$scriptDir\AddIn\*" | ForEach-Object {
+Get-ChildItem "$scriptDir\AddIn\*" -ErrorAction SilentlyContinue | ForEach-Object {
     Copy-Item $_.FullName -Destination $installDir -Force
     Write-Host "  Copied: $($_.Name)"
 }
 
 # Xoa Zone.Identifier (Mark of the Web) khoi cac file vua copy
-Get-ChildItem $installDir | ForEach-Object {
+Get-ChildItem $installDir -ErrorAction SilentlyContinue | ForEach-Object {
     $zone = Get-Item $_.FullName -Stream "Zone.Identifier" -ErrorAction SilentlyContinue
     if ($zone) { Unblock-File -Path $_.FullName }
 }
@@ -86,23 +118,24 @@ Set-ItemProperty -Path $regPath -Name "FriendlyName" -Value "Local Word AI"
 Set-ItemProperty -Path $regPath -Name "Description"  -Value "Local AI Assistant for Word - Offline"
 Write-Host "  Dang ky: $manifestUri" -ForegroundColor Green
 
-# ── 5. Ngan Word tu dong disable add-in ──────────────────────
+# ── 5. Ngan Word tu dong disable add-in + Xoa toan bo Resiliency ──
 Write-Host "`n[5/5] Ngan Word tu dong tat add-in..." -ForegroundColor Yellow
 
 # DoNotDisableAddinList: danh sach add-in ma Office khong duoc tu dong disable
-# Day la co che chinh thuc cua Microsoft - ngan Office set LoadBehavior = 2
 $doNotDisableKey = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\DoNotDisableAddinList"
 if (-not (Test-Path $doNotDisableKey)) { New-Item -Path $doNotDisableKey -Force | Out-Null }
 Set-ItemProperty -Path $doNotDisableKey -Name "LocalWordAI" -Type DWORD -Value 1
-Write-Host "  LocalWordAI da duoc dua vao danh sach khong bi disable." -ForegroundColor Green
+Write-Host "  Da them vao DoNotDisableAddinList." -ForegroundColor Green
 
-# Xoa Resiliency cache cu (phan khac, khong phai DoNotDisableAddinList)
-$crashKey     = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\CrashingAddinList"
-$disabledKey  = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\DisabledItems"
-foreach ($k in @($crashKey, $disabledKey)) {
+# Xoa toan bo cache Resiliency de Word khoi dau tu trang thai sach
+$resilKeys = @(
+    "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency",
+    "HKCU:\Software\Microsoft\Office\15.0\Word\Resiliency"
+)
+foreach ($k in $resilKeys) {
     if (Test-Path $k) {
         Remove-Item $k -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "  Da xoa cache cu: $(Split-Path $k -Leaf)" -ForegroundColor Green
+        Write-Host "  Da xoa: $($k -replace 'HKCU:\\Software\\','')" -ForegroundColor Green
     }
 }
 
@@ -115,8 +148,6 @@ Write-Host "  1. Mo LM Studio, bat Local Server (port 1234)"
 Write-Host "  2. Load mot model trong LM Studio"
 Write-Host "  3. Mo Microsoft Word -> tab 'Local AI' se xuat hien"
 Write-Host ""
-Write-Host "Luu y: Mo Word binh thuong tu Start Menu hoac taskbar la duoc." -ForegroundColor Cyan
-Write-Host "Neu chua thay tab: File > Options > Add-ins > COM Add-ins > Go" -ForegroundColor Yellow
-Write-Host "                   Tick 'LocalWordAI', bam OK." -ForegroundColor Yellow
+Write-Host "Luu y: Neu add-in van khong xuat hien, chay reset_word_ai.bat de fix LoadBehavior." -ForegroundColor Cyan
 Write-Host ""
 Read-Host "Nhan Enter de thoat"

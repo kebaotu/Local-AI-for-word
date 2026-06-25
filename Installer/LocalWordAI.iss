@@ -40,7 +40,6 @@ Source: "..\Skills\*.json"; DestDir: "{userappdata}\LocalWordAI\Skills"; Flags: 
 ; Tài liệu hướng dẫn
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
-[Registry]
 ; Đăng ký add-in với Word (HKCU - không cần admin)
 Root: HKCU; Subkey: "Software\Microsoft\Office\Word\Addins\LocalWordAI"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Microsoft\Office\Word\Addins\LocalWordAI"; ValueType: string; ValueName: "Description"; ValueData: "Local AI Assistant for Microsoft Word - Offline"
@@ -56,7 +55,7 @@ var
 begin
   regKey := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full';
   if RegQueryDWordValue(HKLM, regKey, 'Release', value) then
-    Result := value >= 528040  // .NET 4.8
+    Result := value >= 528040
   else
     Result := False;
 end;
@@ -70,8 +69,29 @@ begin
     'Version', installed);
 end;
 
-function InitializeSetup(): Boolean;
+procedure CleanupResiliencyAndProtect;
+var
+  key: String;
 begin
+  for key in [
+    'Software\Microsoft\Office\16.0\Word\Resiliency',
+    'Software\Microsoft\Office\15.0\Word\Resiliency'
+  ] do
+  begin
+    RegDeleteKeyIncludingSubkeys(HKCU, key);
+  end;
+
+  RegWriteDWordValue(HKCU,
+    'Software\Microsoft\Office\16.0\Word\Resiliency\DoNotDisableAddinList',
+    'LocalWordAI', 1);
+end;
+
+function InitializeSetup(): Boolean;
+var
+  vstoMissing: Boolean;
+begin
+  Result := True;
+
   if not IsDotNet48Installed() then
   begin
     MsgBox('Cần cài .NET Framework 4.8 trước khi cài Local Word AI.' + #13#10 +
@@ -81,14 +101,20 @@ begin
     Exit;
   end;
 
-  if not IsVSTORuntimeInstalled() then
+  vstoMissing := not IsVSTORuntimeInstalled();
+  if vstoMissing then
   begin
-    MsgBox('Cần cài VSTO Runtime.' + #13#10 +
-           'Tìm file "vstor_redist.exe" trong thư mục Prerequisites và cài trước.',
+    MsgBox('Cần cài VSTO Runtime trước khi cài Local Word AI.' + #13#10 +
+           'Tìm file "vstor_redist.exe" trong thư mục Prerequisites và cài trước.' + #13#10 +
+           'Hoặc chạy install.bat (tu dong cai VSTO Runtime neu co file).',
            mbInformation, MB_OK);
   end;
+end;
 
-  Result := True;
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    CleanupResiliencyAndProtect;
 end;
 
 [Run]

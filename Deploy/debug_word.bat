@@ -1,16 +1,22 @@
 @echo off
-echo === Local Word AI - Debug VSTO (tu dong mo Word va ghi log) ===
+echo === Local Word AI - Debug VSTO ===
+echo.
+echo LUU Y: Script nay dung de debug. Neu add-in chi bi LoadBehavior=2,
+echo        hay dung reset_word_ai.bat (nhanh hon, khong can mo Word).
 echo.
 
 :: Dat bien moi truong VSTO log (TRUOC khi mo Word)
 set VSTOHOST_LOGFILE=%USERPROFILE%\Desktop\VSTO_debug_log.txt
 del "%VSTOHOST_LOGFILE%" 2>nul
 
-:: Xoa Resiliency de Word thu lai
+:: Xoa tat ca Resiliency de Word thu lai (reset trang thai disable)
+:: Word dat LoadBehavior=2 khi add-in gap loi. Xoa Resiliency + reset LoadBehavior=3
+:: giup Word them mot lan load lai add-in.
 powershell -ExecutionPolicy Bypass -Command ^
     "Remove-Item 'HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue; ^
+     Remove-Item 'HKCU:\Software\Microsoft\Office\15.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue; ^
      Set-ItemProperty 'HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI' -Name LoadBehavior -Type DWORD -Value 3; ^
-     Write-Host 'LoadBehavior = 3 (da reset)'"
+     Write-Host 'Da reset: LoadBehavior=3, da xoa toan bo Resiliency cache'"
 
 echo.
 echo DANG MO WORD voi debug log bat...
