@@ -1,6 +1,6 @@
 # Build output
-LocalWordAI/bin/
-LocalWordAI/obj/
+LocalDocAI/bin/
+LocalDocAI/obj/
 
 # Visual Studio cache
 .vs/

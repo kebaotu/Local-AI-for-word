@@ -15,7 +15,7 @@ del "%VSTOHOST_LOGFILE%" 2>nul
 powershell -ExecutionPolicy Bypass -Command ^
     "Remove-Item 'HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue; ^
      Remove-Item 'HKCU:\Software\Microsoft\Office\15.0\Word\Resiliency' -Recurse -Force -ErrorAction SilentlyContinue; ^
-     Set-ItemProperty 'HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI' -Name LoadBehavior -Type DWORD -Value 3; ^
+     Set-ItemProperty 'HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI' -Name LoadBehavior -Type DWORD -Value 3; ^
      Write-Host 'Da reset: LoadBehavior=3, da xoa toan bo Resiliency cache'"
 
 echo.
@@ -40,7 +40,7 @@ echo.
 
 :: Kiem tra LoadBehavior sau khi Word dong
 powershell -ExecutionPolicy Bypass -Command ^
-    "$lb = (Get-ItemProperty 'HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI').LoadBehavior; ^
+    "$lb = (Get-ItemProperty 'HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI').LoadBehavior; ^
      if ($lb -eq 3) { Write-Host 'LoadBehavior = 3 -> Add-in hoat dong OK!' -ForegroundColor Green } ^
      else { Write-Host \"LoadBehavior = $lb -> Add-in bi loi (Word tu tat)\" -ForegroundColor Red }"
 

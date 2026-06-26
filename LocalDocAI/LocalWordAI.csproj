@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LocalDocAI</RootNamespace>
+    <AssemblyName>LocalDocAI</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{BAA0C2D2-18E2-41B9-852F-F413020CAA33};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetOfficeApplication>Word</TargetOfficeApplication>
+    <OfficeApplication>Word</OfficeApplication>
+    <Prefer32Bit>false</Prefer32Bit>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateInterval>0</UpdateInterval>
+    <SignManifests>true</SignManifests>
+    <ManifestCertificateThumbprint>EBB4874F04D62BD6846A076DEA045E2A94E39244</ManifestCertificateThumbprint>
+    <ManifestKeyFile>LocalDocAI_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Office PIA - EmbedInteropTypes=false để dùng IRibbonUI/IRibbonControl trong signatures -->
+    <Reference Include="office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Office15\Office.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio\Shared\Visual Studio Tools for Office\PIA\Office15\Microsoft.Office.Interop.Word.dll</HintPath>
+    </Reference>
+    <!-- VSTO runtime references - khớp với VSTO project template -->
+    <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>false</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.Office.Tools.v4.0.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Tools.Applications.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>false</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.VisualStudio.Tools.Applications.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>false</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.Office.Tools.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>false</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.Office.Tools.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Tools.Word, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>false</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.Office.Tools.Word.dll</HintPath>
+    </Reference>
+    <!-- v4.0.Utilities: chứa AddInBase, RibbonCollectionBase (runtime utilities) -->
+    <Reference Include="Microsoft.Office.Tools.Common.v4.0.Utilities, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>true</Private>
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.Office.Tools.Common.v4.0.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc">
+      <HintPath>..\packages\Polly.7.2.4\lib\net461\Polly.dll</HintPath>
+    </Reference>
+    <Reference Include="DiffPlex, Version=1.7.0.0, Culture=neutral">
+      <HintPath>..\packages\DiffPlex.1.7.2\lib\net45\DiffPlex.dll</HintPath>
+    </Reference>
+    <Reference Include="FuzzySharp, Version=2.0.2.0, Culture=neutral">
+      <HintPath>..\packages\FuzzySharp.2.0.2\lib\net45\FuzzySharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ThisAddIn.cs" />
+    <Compile Include="ThisAddIn.Designer.cs">
+      <DependentUpon>ThisAddIn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Ribbon.cs" />
+    <Compile Include="Ribbon.Designer.cs">
+      <DependentUpon>Ribbon.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ChatMessage.cs" />
+    <Compile Include="Models\Suggestion.cs" />
+    <Compile Include="Models\CommentInfo.cs" />
+    <Compile Include="Models\RevisionInfo.cs" />
+    <Compile Include="Models\Skill.cs" />
+    <Compile Include="Models\DocumentContext.cs" />
+    <Compile Include="Models\ReviewResult.cs" />
+    <Compile Include="Models\ChatActionResponse.cs" />
+    <Compile Include="AI\ILmStudioClient.cs" />
+    <Compile Include="AI\LmStudioClient.cs" />
+    <Compile Include="AI\PromptBuilder.cs" />
+    <Compile Include="AI\ContextCompressor.cs" />
+    <Compile Include="AI\JsonOutputParser.cs" />
+    <Compile Include="AI\JsonRepairService.cs" />
+    <Compile Include="WordIntegration\DocumentContextManager.cs" />
+    <Compile Include="WordIntegration\SelectionReader.cs" />
+    <Compile Include="WordIntegration\CommentReader.cs" />
+    <Compile Include="WordIntegration\RevisionReader.cs" />
+    <Compile Include="WordIntegration\TrackChangeService.cs" />
+    <Compile Include="WordIntegration\CommentService.cs" />
+    <Compile Include="WordIntegration\HighlightService.cs" />
+    <Compile Include="WordIntegration\StyleManager.cs" />
+    <Compile Include="Rules\SpacingChecker.cs" />
+    <Compile Include="Rules\PunctuationChecker.cs" />
+    <Compile Include="Rules\RepeatedWordChecker.cs" />
+    <Compile Include="Rules\DateLogicChecker.cs" />
+    <Compile Include="Rules\NumberingChecker.cs" />
+    <Compile Include="Rules\CrossReferenceChecker.cs" />
+    <Compile Include="Rules\PlaceholderChecker.cs" />
+    <Compile Include="Rules\RuleEngine.cs" />
+    <Compile Include="Rules\FuzzyMatcher.cs" />
+    <Compile Include="Skills\SkillManager.cs" />
+    <Compile Include="Skills\SkillRunner.cs" />
+    <Compile Include="Persistence\SettingsService.cs" />
+    <Compile Include="Persistence\LocalCacheService.cs" />
+    <Compile Include="UI\Controls\ChatMessageControl.cs" />
+    <Compile Include="UI\Controls\ChatMessageControl.Designer.cs">
+      <DependentUpon>ChatMessageControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\SuggestionCard.cs" />
+    <Compile Include="UI\Controls\SuggestionCard.Designer.cs">
+      <DependentUpon>SuggestionCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SidebarPane.cs" />
+    <Compile Include="UI\SidebarPane.Designer.cs">
+      <DependentUpon>SidebarPane.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\RewriteDialog.cs" />
+    <Compile Include="UI\SettingsDialog.cs" />
+    <Compile Include="UI\SettingsDialog.Designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UI\SidebarPane.resx">
+      <DependentUpon>SidebarPane.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SettingsDialog.resx">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Controls\ChatMessageControl.resx">
+      <DependentUpon>ChatMessageControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Controls\SuggestionCard.resx">
+      <DependentUpon>SuggestionCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- VS 2022+ uses "OfficeTools" (no space) -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets')" />
+  <!-- VS 2019 and earlier uses "Office Tools" (with space) -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Office Tools\Microsoft.VisualStudio.Tools.Office.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Office Tools\Microsoft.VisualStudio.Tools.Office.targets')" />
+</Project>

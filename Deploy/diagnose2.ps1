@@ -1,11 +1,11 @@
 # ============================================================
 # Local Word AI - Chan doan sau (Phase 2)
 # Chay script nay, sau do MO WORD, sau do DONG WORD
-# Ket qua luu tai Desktop\LocalWordAI_diagnose2.txt
+# Ket qua luu tai Desktop\LocalDocAI_diagnose2.txt
 # ============================================================
 
-$logPath = "$env:USERPROFILE\Desktop\LocalWordAI_diagnose2.txt"
-$installDir = "$env:LOCALAPPDATA\LocalWordAI"
+$logPath = "$env:USERPROFILE\Desktop\LocalDocAI_diagnose2.txt"
+$installDir = "$env:LOCALAPPDATA\LocalDocAI"
 $lines = [System.Collections.Generic.List[string]]::new()
 
 function Log($msg) { $lines.Add($msg); Write-Host $msg }
@@ -128,7 +128,7 @@ Log "  -> Hay mo Word, dung 30 giay, dong Word, roi chay diagnose2.bat lan 2"
 
 # ── 5. Reset LoadBehavior ────────────────────────────────────
 Section "5. RESET LOADBEHAVIOR"
-$regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI"
+$regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI"
 Set-ItemProperty $regPath -Name "LoadBehavior" -Type DWORD -Value 3
 Log "  LoadBehavior = 3 (da reset)"
 
@@ -162,7 +162,7 @@ try {
     $events = Get-WinEvent -LogName Application -MaxEvents 1000 -ErrorAction SilentlyContinue |
         Where-Object {
             $_.TimeCreated -gt $cutoff -and
-            ($_.Message -match "LocalWordAI|VSTO|AddIn|vstolocal|addin" -or
+            ($_.Message -match "LocalDocAI|VSTO|AddIn|vstolocal|addin" -or
              $_.ProviderName -match "VSTO|Word|Office") -and
             $_.LevelDisplayName -match "Error|Warning|Critical"
         } | Select-Object -First 30

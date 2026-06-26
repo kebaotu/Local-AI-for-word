@@ -1,10 +1,10 @@
 # ============================================================
 # Local Word AI - Script chẩn đoán lỗi
 # Double-click diagnose.bat để chạy
-# Kết quả lưu tại Desktop\LocalWordAI_diagnose.txt
+# Kết quả lưu tại Desktop\LocalDocAI_diagnose.txt
 # ============================================================
 
-$logPath = "$env:USERPROFILE\Desktop\LocalWordAI_diagnose.txt"
+$logPath = "$env:USERPROFILE\Desktop\LocalDocAI_diagnose.txt"
 $lines   = [System.Collections.Generic.List[string]]::new()
 
 function Log($msg) {
@@ -27,7 +27,7 @@ Log "OS:        $([System.Environment]::OSVersion.VersionString)"
 
 # ── 1. Registry ──────────────────────────────────────────────
 Section "1. REGISTRY ADD-IN"
-$regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI"
+$regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI"
 if (Test-Path $regPath) {
     $reg = Get-ItemProperty $regPath
     Log "LoadBehavior : $($reg.LoadBehavior)  (can = 3, neu = 2 thi Word da tu tat do loi)"
@@ -46,9 +46,9 @@ try {
     $installDir = Split-Path $manifest
 
     $required = @(
-        "LocalWordAI.vsto",
-        "LocalWordAI.dll",
-        "LocalWordAI.dll.manifest",
+        "LocalDocAI.vsto",
+        "LocalDocAI.dll",
+        "LocalDocAI.dll.manifest",
         "Newtonsoft.Json.dll",
         "Polly.dll",
         "DiffPlex.dll",
@@ -85,7 +85,7 @@ $rt = Get-ChildItem Cert:\CurrentUser\Root -ErrorAction SilentlyContinue |
 Log "Root (CA)        : $(if ($rt) {'CO (OK)'} else {'CHUA CO -- Co the gay loi trust'})"
 
 # Thu cai lai cert neu co file .cer
-$cerFile = Join-Path $installDir "LocalWordAI.cer" -ErrorAction SilentlyContinue
+$cerFile = Join-Path $installDir "LocalDocAI.cer" -ErrorAction SilentlyContinue
 if (-not $tp -and (Test-Path $cerFile)) {
     Log "  -> Dang thu cai certificate tu $cerFile ..."
     try {
@@ -188,7 +188,7 @@ Section "8. WINDOWS EVENT LOG (loi lien quan Word/VSTO)"
 try {
     $events = Get-WinEvent -LogName Application -MaxEvents 500 -ErrorAction SilentlyContinue |
         Where-Object {
-            ($_.Message -match "LocalWordAI|VSTO|AddIn|Word" -or
+            ($_.Message -match "LocalDocAI|VSTO|AddIn|Word" -or
              $_.ProviderName -match "VSTO|Word") -and
             $_.LevelDisplayName -match "Error|Warning"
         } |

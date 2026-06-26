@@ -7,8 +7,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ProjectDir = "$PSScriptRoot\LocalWordAI"
-$SlnFile = "$PSScriptRoot\LocalWordAI.sln"
+$ProjectDir = "$PSScriptRoot\LocalDocAI"
+$SlnFile = "$PSScriptRoot\LocalDocAI.sln"
 
 Write-Host "=== Local Word AI Build ===" -ForegroundColor Cyan
 Write-Host "Configuration: $Configuration"
@@ -58,7 +58,7 @@ Write-Host "Output: $ProjectDir\bin\$Configuration\"
 
 # 3. Copy skills to AppData (optional dev step)
 Write-Host "`n[3] Copying sample skills..." -ForegroundColor Yellow
-$skillsDest = "$env:APPDATA\LocalWordAI\Skills"
+$skillsDest = "$env:APPDATA\LocalDocAI\Skills"
 if (-not (Test-Path $skillsDest)) { New-Item -ItemType Directory -Force $skillsDest | Out-Null }
 Copy-Item "$PSScriptRoot\Skills\*.json" $skillsDest -Force
 Write-Host "Skills copied to: $skillsDest"
@@ -71,7 +71,7 @@ if ($Package) {
         $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     }
     if (Test-Path $iscc) {
-        & $iscc "$PSScriptRoot\Installer\LocalWordAI.iss"
+        & $iscc "$PSScriptRoot\Installer\LocalDocAI.iss"
         Write-Host "Package created in: $PSScriptRoot\Installer\Output\"
     } else {
         Write-Host "Inno Setup not found, skipping packaging." -ForegroundColor Gray

@@ -16,10 +16,10 @@ Write-Host "=== Local Word AI - Cai dat / Khoi phuc ===" -ForegroundColor Cyan
 # ── Mode: Reset Only ─────────────────────────────────────────
 if ($ResetOnly) {
     Write-Host "`n[Reset] Chi khoi phuc registry..." -ForegroundColor Yellow
-    $regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI"
+    $regPath = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI"
     if (-not (Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }
     Set-ItemProperty -Path $regPath -Name "LoadBehavior" -Type DWORD -Value 3
-    Set-ItemProperty -Path $regPath -Name "Manifest" -Value ("file:///" + $scriptDir.Replace('\','/') + "/AddIn/LocalWordAI.vsto|vstolocal")
+    Set-ItemProperty -Path $regPath -Name "Manifest" -Value ("file:///" + $scriptDir.Replace('\','/') + "/AddIn/LocalDocAI.vsto|vstolocal")
     Set-ItemProperty -Path $regPath -Name "FriendlyName" -Value "Local Word AI"
     Set-ItemProperty -Path $regPath -Name "Description" -Value "Local AI Assistant for Word - Offline"
 
@@ -28,7 +28,7 @@ if ($ResetOnly) {
 
     $doNotDisableKey = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\DoNotDisableAddinList"
     if (-not (Test-Path $doNotDisableKey)) { New-Item -Path $doNotDisableKey -Force | Out-Null }
-    Set-ItemProperty -Path $doNotDisableKey -Name "LocalWordAI" -Type DWORD -Value 1
+    Set-ItemProperty -Path $doNotDisableKey -Name "LocalDocAI" -Type DWORD -Value 1
 
     Write-Host "  LoadBehavior=3, da xoa toan bo Resiliency cache." -ForegroundColor Green
     Write-Host ""
@@ -68,7 +68,7 @@ if ($vstoFound) {
 
 # ── 2. Copy files ────────────────────────────────────────────
 Write-Host "`n[2/5] Copy files..." -ForegroundColor Yellow
-$installDir = "$env:LOCALAPPDATA\LocalWordAI"
+$installDir = "$env:LOCALAPPDATA\LocalDocAI"
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 Write-Host "  Thu muc: $installDir"
 
@@ -85,7 +85,7 @@ Get-ChildItem $installDir -ErrorAction SilentlyContinue | ForEach-Object {
 
 # ── 3. Cai certificate ───────────────────────────────────────
 Write-Host "`n[3/5] Cai certificate..." -ForegroundColor Yellow
-$cerPath = "$installDir\LocalWordAI.cer"
+$cerPath = "$installDir\LocalDocAI.cer"
 
 if (Test-Path $cerPath) {
     try {
@@ -102,14 +102,14 @@ if (Test-Path $cerPath) {
         Write-Host "  LOI certificate: $_" -ForegroundColor Red
     }
 } else {
-    Write-Host "  Khong tim thay LocalWordAI.cer" -ForegroundColor Red
+    Write-Host "  Khong tim thay LocalDocAI.cer" -ForegroundColor Red
 }
 
 # ── 4. Dang ky add-in voi Word ───────────────────────────────
 Write-Host "`n[4/5] Dang ky add-in voi Word..." -ForegroundColor Yellow
-$vstoPath    = "$installDir\LocalWordAI.vsto"
+$vstoPath    = "$installDir\LocalDocAI.vsto"
 $manifestUri = "file:///" + $vstoPath.Replace("\", "/") + "|vstolocal"
-$regPath     = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalWordAI"
+$regPath     = "HKCU:\Software\Microsoft\Office\Word\Addins\LocalDocAI"
 
 if (-not (Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }
 Set-ItemProperty -Path $regPath -Name "Manifest"     -Value $manifestUri
@@ -124,7 +124,7 @@ Write-Host "`n[5/5] Ngan Word tu dong tat add-in..." -ForegroundColor Yellow
 # DoNotDisableAddinList: danh sach add-in ma Office khong duoc tu dong disable
 $doNotDisableKey = "HKCU:\Software\Microsoft\Office\16.0\Word\Resiliency\DoNotDisableAddinList"
 if (-not (Test-Path $doNotDisableKey)) { New-Item -Path $doNotDisableKey -Force | Out-Null }
-Set-ItemProperty -Path $doNotDisableKey -Name "LocalWordAI" -Type DWORD -Value 1
+Set-ItemProperty -Path $doNotDisableKey -Name "LocalDocAI" -Type DWORD -Value 1
 Write-Host "  Da them vao DoNotDisableAddinList." -ForegroundColor Green
 
 # Xoa toan bo cache Resiliency de Word khoi dau tu trang thai sach
