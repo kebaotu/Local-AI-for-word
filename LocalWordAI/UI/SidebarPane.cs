@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -84,6 +85,7 @@ namespace LocalWordAI.UI
                 case "check_terms": _ = RunCheckTermsAsync(); break;
                 case "final_check": _ = RunFinalCheckAsync(); break;
                 case "redline": _ = RunRewriteAsync("redline"); break;
+                case "translate": _ = RunTranslateAsync(); break;
             }
         }
 
@@ -401,6 +403,17 @@ namespace LocalWordAI.UI
                 _cts = new CancellationTokenSource();
                 var ctx = _docContext.GetContext();
 
+                // Auto-detect translation request in chat
+                if (ctx.HasSelection && IsTranslationRequest(userText))
+                {
+                    var lang = DetectTargetLanguage(userText);
+                    if (lang != null)
+                    {
+                        await RunTranslateAndInsertAsync(lang, ctx.SelectedText);
+                        return;
+                    }
+                }
+
                 var messages = _promptBuilder.BuildChatWithActionsMessages(userText, ctx, _chatHistory);
                 var raw = await _aiClient.ChatAsync(messages, _cts.Token);
 
@@ -428,6 +441,178 @@ namespace LocalWordAI.UI
                 SafeAddMessage("system", $"⚠ Lỗi: {ex.Message}");
             }
             finally { SetBusy(false); }
+        }
+
+        private string DetectTargetLanguage(string message)
+        {
+            var lower = message.ToLower();
+            if (lower.Contains("tiếng anh") || lower.Contains("tiếng mỹ") || lower.Contains("english") || lower.Contains(" anh"))
+                return "English";
+            if (lower.Contains("tiếng pháp") || lower.Contains("french") || lower.Contains(" pháp"))
+                return "French";
+            if (lower.Contains("tiếng trung") || lower.Contains("chinese") || lower.Contains(" trung"))
+                return "Chinese (Simplified)";
+            if (lower.Contains("tiếng nhật") || lower.Contains("japanese") || lower.Contains(" nhật"))
+                return "Japanese";
+            if (lower.Contains("tiếng hàn") || lower.Contains("korean") || lower.Contains(" hàn"))
+                return "Korean";
+            if (lower.Contains("tiếng nga") || lower.Contains("russian") || lower.Contains(" nga"))
+                return "Russian";
+            if (lower.Contains("tiếng đức") || lower.Contains("german") || lower.Contains(" đức"))
+                return "German";
+            if (lower.Contains("tiếng tây ban nha") || lower.Contains("spanish") || lower.Contains("tây ban nha"))
+                return "Spanish";
+            if (lower.Contains("tiếng thái") || lower.Contains("thai") || lower.Contains(" thái"))
+                return "Thai";
+            if (lower.Contains("tiếng lào") || lower.Contains("lao") || lower.Contains(" lào"))
+                return "Lao";
+            if (lower.Contains("tiếng campuchia") || lower.Contains("khmer") || lower.Contains("campuchia"))
+                return "Khmer";
+            return null;
+        }
+
+        private bool IsTranslationRequest(string message)
+        {
+            var lower = message.ToLower();
+            return lower.Contains("dịch") || lower.Contains("translate");
+        }
+
+        private async Task RunTranslateAsync()
+        {
+            var sel = ThisAddIn.Instance.WordApp?.Selection;
+            var selectedText = _docContext.GetSelectedText();
+
+            if (string.IsNullOrWhiteSpace(selectedText))
+            {
+                ShowError("Vui lòng chọn văn bản cần dịch trong Word trước.");
+                return;
+            }
+
+            var lang = PromptUserForLanguage();
+            if (lang == null)
+            {
+                AddMessage("system", "Đã hủy dịch.");
+                return;
+            }
+
+            AddMessage("user", $"Dịch sang tiếng {lang}", switchToChat: true);
+            await RunTranslateAndInsertAsync(lang, selectedText);
+        }
+
+        private string PromptUserForLanguage()
+        {
+            var input = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nhập ngôn ngữ đích (vd: tiếng Anh, tiếng Pháp, tiếng Trung...):",
+                "Dịch văn bản",
+                "tiếng Anh");
+            if (string.IsNullOrWhiteSpace(input)) return null;
+
+            var normalized = input.Trim().ToLower();
+            if (normalized.Contains("anh") || normalized.Contains("english")) return "English";
+            if (normalized.Contains("pháp") || normalized.Contains("french")) return "French";
+            if (normalized.Contains("trung") || normalized.Contains("chinese")) return "Chinese (Simplified)";
+            if (normalized.Contains("nhật") || normalized.Contains("japanese")) return "Japanese";
+            if (normalized.Contains("hàn") || normalized.Contains("korean")) return "Korean";
+            if (normalized.Contains("nga") || normalized.Contains("russian")) return "Russian";
+            if (normalized.Contains("đức") || normalized.Contains("german")) return "German";
+            if (normalized.Contains("tây ban nha") || normalized.Contains("spanish")) return "Spanish";
+            if (normalized.Contains("thái") || normalized.Contains("thai")) return "Thai";
+            if (normalized.Contains("lào") || normalized.Contains("lao")) return "Lao";
+            if (normalized.Contains("campuchia") || normalized.Contains("khmer")) return "Khmer";
+
+            return input.Trim();
+        }
+
+        private async Task RunTranslateAndInsertAsync(string targetLanguage, string selectedText)
+        {
+            try
+            {
+                SetBusy(true, $"Đang dịch sang {targetLanguage}...");
+
+                var messages = _promptBuilder.BuildTranslatePrompt(selectedText, targetLanguage);
+                var raw = await _aiClient.ChatAsync(messages, _cts.Token);
+
+                var translatedParagraphs = ParseTranslatedParagraphs(raw);
+                if (translatedParagraphs.Count == 0)
+                {
+                    ShowError("Không nhận được bản dịch hợp lệ từ AI.");
+                    SetBusy(false);
+                    return;
+                }
+
+                var doc = ThisAddIn.Instance.ActiveDoc;
+                if (doc == null)
+                {
+                    ShowError("Không có tài liệu đang mở.");
+                    SetBusy(false);
+                    return;
+                }
+
+                var sel = ThisAddIn.Instance.WordApp.Selection;
+                if (sel == null || sel.Type != Word.WdSelectionType.wdSelectionNormal)
+                {
+                    ShowError("Vui lòng chọn văn bản cần dịch.");
+                    SetBusy(false);
+                    return;
+                }
+
+                var paragraphs = sel.Range.Paragraphs;
+                int count = Math.Min(translatedParagraphs.Count, paragraphs.Count);
+
+                if (count == 0)
+                {
+                    ShowError("Không tìm thấy đoạn văn trong vùng chọn.");
+                    SetBusy(false);
+                    return;
+                }
+
+                SetBusy(true, $"Đang chèn {count} đoạn dịch...");
+
+                // Insert from end to start to keep ranges valid
+                for (int i = count; i >= 1; i--)
+                {
+                    try
+                    {
+                        var paraRange = paragraphs[i].Range;
+                        var insertRange = paraRange.Duplicate;
+                        insertRange.Collapse(Word.WdCollapseDirection.wdCollapseEnd);
+                        insertRange.Text = translatedParagraphs[i - 1] + "\r";
+                        insertRange.ParagraphFormat.SpaceAfter = 6;
+                        insertRange.ParagraphFormat.SpaceBefore = 3;
+                    }
+                    catch { }
+                }
+
+                AddMessage("assistant", $"✓ Đã dịch và chèn {count} đoạn văn sau mỗi đoạn gốc (tiếng {targetLanguage}).");
+            }
+            catch (OperationCanceledException) { SafeAddMessage("assistant", "Đã dừng dịch."); }
+            catch (Exception ex)
+            {
+                WriteLog($"Translate EXCEPTION: {ex.GetType().Name}: {ex.Message}");
+                ShowError("Lỗi dịch: " + ex.Message);
+            }
+            finally { SetBusy(false); }
+        }
+
+        private List<string> ParseTranslatedParagraphs(string raw)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrWhiteSpace(raw)) return result;
+
+            try
+            {
+                var matches = Regex.Matches(raw, @"<p[^>]*>(.*?)</p>",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                foreach (Match m in matches)
+                {
+                    var text = m.Groups[1].Value;
+                    if (!string.IsNullOrWhiteSpace(text))
+                        result.Add(text);
+                }
+            }
+            catch { }
+
+            return result;
         }
 
         private async Task<string> ExecuteChatActionsAsync(List<ChatAction> actions)

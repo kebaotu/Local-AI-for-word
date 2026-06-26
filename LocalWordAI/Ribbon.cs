@@ -42,6 +42,12 @@ namespace LocalWordAI
                   onAction=""CreateRedline""
                   size=""normal""
                   imageMso=""AcceptAllTrackedChanges"" />
+          <button id=""btnTranslate""
+                  label=""Dịch""
+                  screentip=""Dịch vùng chọn và chèn sau mỗi đoạn gốc""
+                  onAction=""TranslateSelection""
+                  size=""normal""
+                  imageMso=""Globalization"" />
           <separator id=""sep1"" />
           <button id=""btnSettings""
                   label=""Cài đặt""
@@ -111,6 +117,11 @@ namespace LocalWordAI
         public void CreateRedline(IRibbonControl control)
         {
             EnsureSidebarAndRun("redline");
+        }
+
+        public void TranslateSelection(IRibbonControl control)
+        {
+            EnsureSidebarAndRun("translate");
         }
 
         public void CheckComments(IRibbonControl control)

@@ -308,5 +308,25 @@ Tracked changes:
                 ChatMessage.User(sb.ToString())
             };
         }
+
+        public List<ChatMessage> BuildTranslatePrompt(string text, string targetLanguage)
+        {
+            var userMsg = $@"Translate the following text to {targetLanguage}. STRICTLY follow these rules:
+1. Output EXACTLY the same number of paragraphs as the input
+2. Wrap EACH translated paragraph in <p>...</p> tags
+3. Do NOT include any explanation, commentary, or markdown code blocks
+4. Preserve the tone and meaning as closely as possible
+
+Input text:
+---
+{text}
+---";
+
+            return new List<ChatMessage>
+            {
+                ChatMessage.System(SystemPrompt),
+                ChatMessage.User(userMsg)
+            };
+        }
     }
 }
