@@ -1,6 +1,6 @@
 # Local Word AI
 
-Add-in Microsoft Word cục bộ, kết nối LM Studio, chạy hoàn toàn offline.
+Trên ý tưởng Claude for word và với mong muốn bảo mật dữ liệu (hoàn toàn chạy offline), sự hỗ trợ của claude và kilo code, tôi đã hoàn thành Add-in cho Microsoft Word sử dụng LLMs để kiểm tra văn bản, kết nối LM Studio, chạy hoàn toàn offline.
 
 ---
 
