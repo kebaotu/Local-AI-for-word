@@ -29,12 +29,19 @@ namespace LocalDocAI.UI
             chkConfirmBefore.Checked = _settings.ShowConfirmBeforeApply;
             txtSkillsDir.Text = _settings.SkillsDirectory;
             txtAuthor.Text = _settings.AuthorName;
+
+            cmbLanguage.SelectedIndex = _settings.LanguageCode switch
+            {
+                "en" => 1,
+                "fr" => 2,
+                _ => 0
+            };
         }
 
         private async void btnTest_Click(object sender, System.EventArgs e)
         {
             btnTest.Enabled = false;
-            lblTestResult.Text = "Đang kiểm tra...";
+            lblTestResult.Text = LocalDocAI.Persistence.LocalizationService.Get("processing");
             lblTestResult.ForeColor = Color.Gray;
 
             var testSettings = new SettingsService();
@@ -43,7 +50,7 @@ namespace LocalDocAI.UI
 
             if (!testSettings.IsValidLocalUrl(testSettings.Current.LmStudioBaseUrl))
             {
-                lblTestResult.Text = "URL không hợp lệ (chỉ cho phép localhost/127.0.0.1)";
+                lblTestResult.Text = LocalDocAI.Persistence.LocalizationService.Get("urlInvalidShort");
                 lblTestResult.ForeColor = Color.FromArgb(220, 38, 38);
                 btnTest.Enabled = true;
                 return;
@@ -51,7 +58,7 @@ namespace LocalDocAI.UI
 
             var client = new LmStudioClient(testSettings);
             bool ok = await client.TestConnectionAsync();
-            lblTestResult.Text = ok ? "✓ Kết nối thành công" : "✗ Không kết nối được";
+            lblTestResult.Text = ok ? LocalDocAI.Persistence.LocalizationService.Get("connectionSuccess") : LocalDocAI.Persistence.LocalizationService.Get("connectionFailed");
             lblTestResult.ForeColor = ok ? Color.FromArgb(22, 163, 74) : Color.FromArgb(220, 38, 38);
 
             if (ok)
@@ -74,7 +81,7 @@ namespace LocalDocAI.UI
         {
             if (!_service.IsValidLocalUrl(txtBaseUrl.Text.Trim()))
             {
-                MessageBox.Show("URL không hợp lệ. Chỉ cho phép localhost hoặc 127.0.0.1.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(LocalDocAI.Persistence.LocalizationService.Get("urlInvalid"), LocalDocAI.Persistence.LocalizationService.Get("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -89,6 +96,13 @@ namespace LocalDocAI.UI
             _settings.ShowConfirmBeforeApply = chkConfirmBefore.Checked;
             _settings.SkillsDirectory = txtSkillsDir.Text.Trim();
             _settings.AuthorName = txtAuthor.Text.Trim();
+
+            _settings.LanguageCode = cmbLanguage.SelectedIndex switch
+            {
+                1 => "en",
+                2 => "fr",
+                _ => "vi"
+            };
 
             _service.Save();
             DialogResult = DialogResult.OK;

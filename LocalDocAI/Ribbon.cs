@@ -14,70 +14,70 @@ namespace LocalDocAI
 <customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui"" onLoad=""Ribbon_Load"">
   <ribbon>
     <tabs>
-      <tab id=""tabLocalAI"" label=""Local AI"">
-        <group id=""grpMain"" label=""Local Word AI"">
+      <tab id=""tabLocalAI"" getLabel=""GetLabel"">
+        <group id=""grpMain"" getLabel=""GetLabel"">
           <toggleButton id=""btnToggleSidebar""
-                        label=""AI Sidebar""
-                        screentip=""Bật/tắt AI Sidebar""
-                        supertip=""Mở hoặc đóng bảng trợ lý AI bên phải.""
+                        getLabel=""GetLabel""
+                        getScreentip=""GetScreentip""
+                        getSupertip=""GetSupertip""
                         onAction=""ToggleSidebar""
                         getPressed=""GetSidebarPressed""
                         size=""large""
                         imageMso=""CreateForm"" />
           <button id=""btnQuickReview""
-                  label=""Review""
-                  screentip=""Review vùng chọn hoặc tài liệu""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""QuickReview""
                   size=""normal""
                   imageMso=""ReviewShowMarkup"" />
           <button id=""btnRewrite""
-                  label=""Rewrite""
-                  screentip=""Viết lại vùng chọn""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""RewriteSelection""
                   size=""normal""
                   imageMso=""EditingFindAndReplace"" />
           <button id=""btnRedline""
-                  label=""Redline""
-                  screentip=""Tạo redline với Track Changes""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""CreateRedline""
                   size=""normal""
                   imageMso=""AcceptAllTrackedChanges"" />
           <button id=""btnTranslate""
-                  label=""Dịch""
-                  screentip=""Dịch vùng chọn và chèn sau mỗi đoạn gốc""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""TranslateSelection""
                   size=""normal""
                   imageMso=""Globalization"" />
           <separator id=""sep1"" />
           <button id=""btnSettings""
-                  label=""Cài đặt""
-                  screentip=""Cài đặt Local Word AI""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""OpenSettings""
                   size=""normal""
                   imageMso=""PropertySheet"" />
         </group>
-        <group id=""grpCheck"" label=""Kiểm tra"">
+        <group id=""grpCheck"" getLabel=""GetLabel"">
           <button id=""btnCheckComments""
-                  label=""Comments""
-                  screentip=""Xử lý comments""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""CheckComments""
                   size=""normal""
                   imageMso=""ReviewNewComment"" />
           <button id=""btnCheckChanges""
-                  label=""Tracked Changes""
-                  screentip=""Phân tích tracked changes""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""CheckChanges""
                   size=""normal""
                   imageMso=""TrackChangesMenu"" />
           <button id=""btnCheckTerms""
-                  label=""Thuật ngữ""
-                  screentip=""Kiểm tra thuật ngữ nhất quán""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""CheckTerms""
                   size=""normal""
                   imageMso=""ReviewFinalShowingMarkup"" />
           <button id=""btnFinalCheck""
-                  label=""Final Check""
-                  screentip=""Kiểm tra toàn diện trước phát hành""
+                  getLabel=""GetLabel""
+                  getScreentip=""GetScreentip""
                   onAction=""FinalCheck""
                   size=""large""
                   imageMso=""CheckDocument"" />
@@ -148,6 +148,22 @@ namespace LocalDocAI
         {
             var dlg = new UI.SettingsDialog();
             dlg.ShowDialog();
+            _ribbon?.Invalidate();
+        }
+
+        public string GetLabel(IRibbonControl control)
+        {
+            return LocalDocAI.Persistence.LocalizationService.Get(control.Id);
+        }
+
+        public string GetScreentip(IRibbonControl control)
+        {
+            return LocalDocAI.Persistence.LocalizationService.Get(control.Id + "_tip");
+        }
+
+        public string GetSupertip(IRibbonControl control)
+        {
+            return LocalDocAI.Persistence.LocalizationService.Get(control.Id + "_super");
         }
 
         private void EnsureSidebarAndRun(string action)

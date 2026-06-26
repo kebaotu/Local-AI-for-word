@@ -10,7 +10,7 @@
 
 ## Giới thiệu
 
-Dựa trên ý tưởng Claude for Word và mong muốn bảo mật dữ liệu hoàn toàn offline, tôi đã phát triển Add-in Microsoft Word sử dụng LLMs cục bộ qua LM Studio để kiểm tra, viết lại và chỉnh sửa tài liệu — tất cả chạy hoàn toàn trên máy của bạn.
+Dựa trên ý tưởng Claude for Word và mong muốn bảo mật dữ liệu hoàn toàn offline, tôi đã phát triển Add-in Microsoft Word sử dụng LLMs cục bộ qua LM Studio để kiểm tra, viết lại và chỉnh sửa tài liệu — tất cả chạy hoàn toàn trên máy của của bạn. Add-in hỗ trợ **3 ngôn ngữ**: Tiếng Việt, English, Français — thay đổi trong phần Cài đặt.
 
 <!--more-->
 
@@ -164,7 +164,7 @@ Dự án nội bộ — không phân phối thương mại.
 
 ## Overview
 
-Add-in for Microsoft Word that performs AI-powered document review, rewriting, and editing **entirely offline** using a local LLM via [LM Studio](https://lmstudio.ai). Designed with Vietnamese-language document workflows in mind, but works with any language supported by your local model.
+Add-in for Microsoft Word that performs AI-powered document review, rewriting, and editing **entirely offline** using a local LLM via [LM Studio](https://lmstudio.ai). Supports **3 UI languages**: Vietnamese, English, Français — switchable in Settings.
 
 ## System Requirements
 
@@ -317,7 +317,7 @@ Internal project — not for commercial distribution.
 
 ## Aperçu
 
-Complément (add-in) pour Microsoft Word qui effectue la révision, la réécriture et l'édition de documents **entièrement hors ligne** grâce à un LLM local via [LM Studio](https://lmstudio.ai). Conçu principalement pour les workflows de documents en vietnamien, mais fonctionne avec toute langue prise en charge par votre modèle local.
+Complément (add-in) pour Microsoft Word qui effectue la révision, la réécriture et l'édition de documents **entièrement hors ligne** grâce à un LLM local via [LM Studio](https://lmstudio.ai). Supporte **3 langues d'interface** : vietnamien, anglais, français — modifiable dans Paramètres.
 
 ## Configuration requise
 

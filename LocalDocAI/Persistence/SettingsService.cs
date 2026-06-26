@@ -18,6 +18,7 @@ namespace LocalDocAI.Persistence
         public string SkillsDirectory { get; set; } = "";
         public string AuthorName { get; set; } = "Local AI";
         public int ChunkSizeWords { get; set; } = 2000;
+        public string LanguageCode { get; set; } = "vi";
     }
 
     public class SettingsService
@@ -47,6 +48,11 @@ namespace LocalDocAI.Persistence
                     Current.SkillsDirectory = Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                         "LocalDocAI", "Skills");
+
+                if (string.IsNullOrEmpty(Current.LanguageCode))
+                    Current.LanguageCode = "vi";
+
+                LocalizationService.SetLanguage(Current.LanguageCode);
             }
             catch
             {
@@ -58,6 +64,7 @@ namespace LocalDocAI.Persistence
         {
             try
             {
+                LocalizationService.SetLanguage(Current.LanguageCode);
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
                 File.WriteAllText(SettingsPath, JsonConvert.SerializeObject(Current, Formatting.Indented));
             }
