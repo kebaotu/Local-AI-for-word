@@ -45,7 +45,7 @@ namespace LocalDocAI
             if (_taskPane == null)
             {
                 _sidebarControl = new SidebarPane();
-                _taskPane = this.CustomTaskPanes.Add(_sidebarControl, "Local Word AI");
+                _taskPane = this.CustomTaskPanes.Add(_sidebarControl, LocalDocAI.Persistence.LocalizationService.Get("sidebarTitle"));
                 _taskPane.Width = 360;
                 _taskPane.DockPosition = MsoCTPDockPosition.msoCTPDockPositionRight;
                 _taskPane.Visible = true;

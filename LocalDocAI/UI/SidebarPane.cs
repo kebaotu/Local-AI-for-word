@@ -64,11 +64,35 @@ namespace LocalDocAI.UI
         {
             _skillManager.Load();
             cmbSkills.Items.Clear();
-            cmbSkills.Items.Add("-- Chọn Skill --");
+            cmbSkills.Items.Add(LocalDocAI.Persistence.LocalizationService.Get("skillPlaceholder"));
             foreach (var s in _skillManager.GetAll())
                 cmbSkills.Items.Add(s);
             cmbSkills.SelectedIndex = 0;
             cmbSkills.DisplayMember = "Name";
+        }
+
+        public void UpdateLanguage()
+        {
+            if (InvokeRequired) { Invoke((Action)(UpdateLanguage)); return; }
+            lblTitle.Text = LocalDocAI.Persistence.LocalizationService.Get("sidebarTitle");
+            lblStatus.Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatus");
+            btnStop.Text = "■ " + LocalDocAI.Persistence.LocalizationService.Get("btnStop");
+            btnSend.Text = LocalDocAI.Persistence.LocalizationService.Get("btnSend");
+            btnApplyAllSafe.Text = LocalDocAI.Persistence.LocalizationService.Get("mnuApplyAll");
+            btnRunSkill.Text = LocalDocAI.Persistence.LocalizationService.Get("btnRunSkill");
+            tabChat.Text = LocalDocAI.Persistence.LocalizationService.Get("lblChat").Replace(":", "");
+            tabSuggestions.Text = LocalDocAI.Persistence.LocalizationService.Get("lblSuggestions").Replace(":", "");
+            tabSkills.Text = LocalDocAI.Persistence.LocalizationService.Get("lblSkills").Replace(":", "");
+            btnReviewSel.Text = LocalDocAI.Persistence.LocalizationService.Get("btnReviewSelection");
+            btnReviewDoc.Text = LocalDocAI.Persistence.LocalizationService.Get("btnReviewDocument");
+            btnRewrite.Text = LocalDocAI.Persistence.LocalizationService.Get("btnRewriteTab");
+            btnShorten.Text = LocalDocAI.Persistence.LocalizationService.Get("btnShorten");
+            btnFormal.Text = LocalDocAI.Persistence.LocalizationService.Get("btnFormal");
+            btnPassive.Text = LocalDocAI.Persistence.LocalizationService.Get("btnPassive");
+            btnComments.Text = LocalDocAI.Persistence.LocalizationService.Get("btnComments");
+            btnChanges.Text = LocalDocAI.Persistence.LocalizationService.Get("btnChanges");
+            btnFinalCheck.Text = LocalDocAI.Persistence.LocalizationService.Get("btnFinalCheck");
+            LoadSkills();
         }
 
         // Called from Ribbon (may come from COM thread)
@@ -91,14 +115,13 @@ namespace LocalDocAI.UI
 
         private async void CheckConnectionAsync()
         {
-            lblStatus.Text = "Đang kết nối...";
+            lblStatus.Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatus");
             lblStatus.ForeColor = Color.Gray;
             var ok = await _aiClient.TestConnectionAsync();
             if (ok)
             {
-                lblStatus.Text = "● Đã kết nối";
+                lblStatus.Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatusConnected");
                 lblStatus.ForeColor = Color.FromArgb(22, 163, 74);
-                // Load model list
                 var models = await _aiClient.ListModelsAsync();
                 if (models.Count > 0 && string.IsNullOrEmpty(_settings.Current.ModelName))
                 {
@@ -112,9 +135,21 @@ namespace LocalDocAI.UI
             }
             else
             {
-                lblStatus.Text = "● Mất kết nối";
+                lblStatus.Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatusDisconnected");
                 lblStatus.ForeColor = Color.FromArgb(220, 38, 38);
-                lblModel.Text = "LM Studio chưa chạy";
+                lblModel.Text = LocalDocAI.Persistence.LocalizationService.Get("lblNoModel");
+            }
+        }
+                else
+                {
+                    lblModel.Text = _settings.Current.ModelName;
+                }
+            }
+            else
+            {
+                lblStatus.Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatusDisconnected");
+                lblStatus.ForeColor = Color.FromArgb(220, 38, 38);
+                lblModel.Text = LocalDocAI.Persistence.LocalizationService.Get("lblNoModel");
             }
         }
 
@@ -123,8 +158,8 @@ namespace LocalDocAI.UI
         private async void btnReviewSel_Click(object sender, EventArgs e) => await RunReviewSelectionAsync();
         private async void btnReviewDoc_Click(object sender, EventArgs e) => await RunReviewDocumentAsync();
         private async void btnRewrite_Click(object sender, EventArgs e) => await RunRewriteAsync();
-        private async void btnShorten_Click(object sender, EventArgs e) => await RunRewriteAsync("Rút gọn, giữ ý chính, không thêm dữ kiện");
-        private async void btnFormal_Click(object sender, EventArgs e) => await RunRewriteAsync("Chuyển sang văn phong trang trọng, hành chính");
+        private async void btnShorten_Click(object sender, EventArgs e) => await RunRewriteAsync(LocalDocAI.Persistence.LocalizationService.Get("btnShorten") + ", " + (LocalDocAI.Persistence.LocalizationService.CurrentLanguage == "vi" ? "giữ ý chính, không thêm dữ kiện" : "keep main ideas, no extra info"));
+        private async void btnFormal_Click(object sender, EventArgs e) => await RunRewriteAsync(LocalDocAI.Persistence.LocalizationService.Get("btnFormal") + ", " + (LocalDocAI.Persistence.LocalizationService.CurrentLanguage == "vi" ? "văn phong trang trọng, hành chính" : "formal, administrative style"));
         private async void btnPassive_Click(object sender, EventArgs e) => await RunCheckPassiveAsync();
         private async void btnComments_Click(object sender, EventArgs e) => await RunCheckCommentsAsync();
         private async void btnChanges_Click(object sender, EventArgs e) => await RunSummarizeChangesAsync();
@@ -141,7 +176,7 @@ namespace LocalDocAI.UI
             }
             catch (Exception ex)
             {
-                ShowChatError("Lỗi không xử lý được: " + ex.Message + "\n" + ex.StackTrace);
+                ShowChatError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message + "\n" + ex.StackTrace);
                 SetBusy(false);
             }
         }
@@ -173,10 +208,10 @@ namespace LocalDocAI.UI
         {
             var ctx = _docContext.GetContext();
             var text = ctx.HasSelection ? ctx.SelectedText : ctx.FullText;
-            if (string.IsNullOrWhiteSpace(text)) { ShowError("Không có văn bản để kiểm tra."); return; }
+            if (string.IsNullOrWhiteSpace(text)) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noText")); return; }
 
-            SetBusy(true, "Đang kiểm tra...");
-            AddMessage("system", $"Kiểm tra: {(ctx.HasSelection ? "vùng chọn" : "tài liệu")}");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("reviewingSelection"));
+            AddMessage("system", string.Format(LocalDocAI.Persistence.LocalizationService.Get("reviewPrompt"), ctx.HasSelection ? LocalDocAI.Persistence.LocalizationService.Get("btnReviewSelection") : LocalDocAI.Persistence.LocalizationService.Get("btnReviewDocument")));
 
             try
             {
@@ -194,18 +229,18 @@ namespace LocalDocAI.UI
                 // Merge
                 _currentSuggestions = MergeSuggestions(ruleResults, aiResults);
                 ShowSuggestions(_currentSuggestions);
-                AddMessage("assistant", $"Tìm thấy {_currentSuggestions.Count} vấn đề.");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("foundIssuesReview"), _currentSuggestions.Count));
             }
-            catch (OperationCanceledException) { AddMessage("assistant", "Đã dừng."); }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (OperationCanceledException) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
         private async Task RunReviewDocumentAsync()
         {
-            SetBusy(true, "Đang kiểm tra tài liệu...");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("reviewingDoc"));
             var doc = ThisAddIn.Instance.ActiveDoc;
-            if (doc == null) { ShowError("Không có tài liệu đang mở."); SetBusy(false); return; }
+            if (doc == null) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("textNoDocOpen")); SetBusy(false); return; }
 
             try
             {
@@ -219,7 +254,7 @@ namespace LocalDocAI.UI
 
                 for (int i = 0; i < chunks.Count && !_cts.Token.IsCancellationRequested; i++)
                 {
-                    SetBusy(true, $"Đang kiểm tra phần {i + 1}/{chunks.Count}...");
+                    SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("reviewingPart"), i + 1, chunks.Count));
                     var messages = _promptBuilder.BuildReviewPrompt(chunks[i]);
                     var parsed = await _aiClient.ChatJsonAsync<SuggestionList>(messages, _cts.Token);
                     if (parsed?.Suggestions != null) aiResults.AddRange(parsed.Suggestions);
@@ -227,10 +262,10 @@ namespace LocalDocAI.UI
 
                 _currentSuggestions = MergeSuggestions(ruleResults, aiResults);
                 ShowSuggestions(_currentSuggestions);
-                AddMessage("assistant", $"Kiểm tra xong. Tìm thấy {_currentSuggestions.Count} vấn đề.");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("reviewDone"), _currentSuggestions.Count));
             }
-            catch (OperationCanceledException) { AddMessage("assistant", "Đã dừng."); }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (OperationCanceledException) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
@@ -239,19 +274,19 @@ namespace LocalDocAI.UI
             var selText = _docContext.GetSelectedText();
             if (string.IsNullOrWhiteSpace(selText))
             {
-                ShowError("Hãy chọn đoạn văn bản cần viết lại.");
+                ShowError(LocalDocAI.Persistence.LocalizationService.Get("chooseText"));
                 return;
             }
 
             if (string.IsNullOrEmpty(instruction))
             {
                 instruction = Microsoft.VisualBasic.Interaction.InputBox(
-                    "Yêu cầu viết lại (vd: 'trang trọng hơn', 'ngắn gọn hơn'):",
-                    "Rewrite", "");
+                    LocalDocAI.Persistence.LocalizationService.Get("rewritePrompt"),
+                    LocalDocAI.Persistence.LocalizationService.Get("rewriteTitle"), "");
                 if (string.IsNullOrEmpty(instruction)) return;
             }
 
-            SetBusy(true, "Đang viết lại...");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("rewriting"));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -261,7 +296,7 @@ namespace LocalDocAI.UI
 
                 if (!string.IsNullOrEmpty(result?.RewrittenText))
                 {
-                    AddMessage("assistant", $"**Bản gốc:**\n{result.OriginalText}\n\n**Viết lại:**\n{result.RewrittenText}\n\n{result.Explanation}");
+                    AddMessage("assistant", $"**{LocalDocAI.Persistence.LocalizationService.Get("lblOriginal")}:**\n{result.OriginalText}\n\n**{LocalDocAI.Persistence.LocalizationService.Get("lblRewritten")}:**\n{result.RewrittenText}\n\n{result.Explanation}");
                     ShowRewriteOptions(selText, result.RewrittenText);
                 }
                 else
@@ -269,20 +304,20 @@ namespace LocalDocAI.UI
                     AddMessage("assistant", raw);
                 }
             }
-            catch (OperationCanceledException) { AddMessage("assistant", "Đã dừng."); }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (OperationCanceledException) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
         private async Task RunCheckCommentsAsync()
         {
             var doc = ThisAddIn.Instance.ActiveDoc;
-            if (doc == null) { ShowError("Không có tài liệu."); return; }
+            if (doc == null) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noDocOpen")); return; }
 
             var comments = CommentReader.ReadAll(doc);
-            if (comments.Count == 0) { AddMessage("assistant", "Tài liệu không có comment."); return; }
+            if (comments.Count == 0) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("noComments")); return; }
 
-            SetBusy(true, $"Đang phân tích {comments.Count} comments...");
+            SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("analyzing"), comments.Count));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -291,20 +326,20 @@ namespace LocalDocAI.UI
                 var raw = await _aiClient.ChatAsync(messages, _cts.Token);
                 AddMessage("assistant", raw);
             }
-            catch (OperationCanceledException) { AddMessage("assistant", "Đã dừng."); }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (OperationCanceledException) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
         private async Task RunSummarizeChangesAsync()
         {
             var doc = ThisAddIn.Instance.ActiveDoc;
-            if (doc == null) { ShowError("Không có tài liệu."); return; }
+            if (doc == null) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noDocOpen")); return; }
 
             var revisions = RevisionReader.ReadAll(doc);
-            if (revisions.Count == 0) { AddMessage("assistant", "Tài liệu không có tracked changes."); return; }
+            if (revisions.Count == 0) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("noTrackedChanges")); return; }
 
-            SetBusy(true, $"Đang phân tích {revisions.Count} tracked changes...");
+            SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("analyzingChanges"), revisions.Count));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -313,8 +348,8 @@ namespace LocalDocAI.UI
                 var raw = await _aiClient.ChatAsync(messages, _cts.Token);
                 AddMessage("assistant", raw);
             }
-            catch (OperationCanceledException) { AddMessage("assistant", "Đã dừng."); }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (OperationCanceledException) { AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
@@ -322,9 +357,9 @@ namespace LocalDocAI.UI
         {
             var ctx = _docContext.GetContext();
             var text = ctx.HasSelection ? ctx.SelectedText : ctx.FullText;
-            if (string.IsNullOrWhiteSpace(text)) { ShowError("Không có văn bản."); return; }
+            if (string.IsNullOrWhiteSpace(text)) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noTextSelect")); return; }
 
-            SetBusy(true, "Đang kiểm tra câu bị động...");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("checkingPassive"));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -334,19 +369,19 @@ namespace LocalDocAI.UI
                     ?? new List<Suggestion>();
                 _currentSuggestions = results;
                 ShowSuggestions(results);
-                AddMessage("assistant", $"Tìm thấy {results.Count} câu bị động/mơ hồ.");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("foundIssues"), results.Count));
             }
             catch (OperationCanceledException) { }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
         private async Task RunCheckTermsAsync()
         {
             var text = _docContext.GetFullText();
-            if (string.IsNullOrWhiteSpace(text)) { ShowError("Không có tài liệu."); return; }
+            if (string.IsNullOrWhiteSpace(text)) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noDocOpen")); return; }
 
-            SetBusy(true, "Đang kiểm tra thuật ngữ...");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("checkingTerms"));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -356,19 +391,19 @@ namespace LocalDocAI.UI
                 var results = parsed?.Suggestions ?? new List<Suggestion>();
                 _currentSuggestions = results;
                 ShowSuggestions(results);
-                AddMessage("assistant", $"Tìm thấy {results.Count} vấn đề thuật ngữ.");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("foundTermIssues"), results.Count));
             }
             catch (OperationCanceledException) { }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
         private async Task RunFinalCheckAsync()
         {
             var doc = ThisAddIn.Instance.ActiveDoc;
-            if (doc == null) { ShowError("Không có tài liệu."); return; }
+            if (doc == null) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noDocOpen")); return; }
 
-            SetBusy(true, "Đang kiểm tra toàn diện...");
+            SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("checkingFinal"));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -387,10 +422,10 @@ namespace LocalDocAI.UI
 
                 _currentSuggestions = MergeSuggestions(allSuggestions, new List<Suggestion>());
                 ShowSuggestions(_currentSuggestions);
-                AddMessage("assistant", $"Final check hoàn tất. Tổng cộng {_currentSuggestions.Count} vấn đề.");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("finalDone"), _currentSuggestions.Count));
             }
             catch (OperationCanceledException) { }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
@@ -399,7 +434,7 @@ namespace LocalDocAI.UI
             try
             {
                 AddMessage("user", userText, switchToChat: true);
-                SetBusy(true, "Đang trả lời...");
+                SetBusy(true, LocalDocAI.Persistence.LocalizationService.Get("replying"));
                 _cts = new CancellationTokenSource();
                 var ctx = _docContext.GetContext();
 
@@ -424,7 +459,7 @@ namespace LocalDocAI.UI
                 // Execute word actions if any
                 if (actionResp?.Actions != null && actionResp.Actions.Count > 0)
                 {
-                    SetBusy(true, $"Đang thực hiện {actionResp.Actions.Count} thao tác...");
+                    SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("performingActions"), actionResp.Actions.Count));
                     var resultMsg = await ExecuteChatActionsAsync(actionResp.Actions);
                     if (!string.IsNullOrEmpty(resultMsg))
                         replyText += "\n\n" + resultMsg;
@@ -434,11 +469,11 @@ namespace LocalDocAI.UI
                 _chatHistory.Add(ChatMessage.Assistant(replyText));
                 AddMessage("assistant", replyText, switchToChat: true);
             }
-            catch (OperationCanceledException) { SafeAddMessage("assistant", "Đã dừng."); }
+            catch (OperationCanceledException) { SafeAddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("stopped")); }
             catch (Exception ex)
             {
                 WriteLog($"RunChatAsync EXCEPTION: {ex.GetType().Name}: {ex.Message}");
-                SafeAddMessage("system", $"⚠ Lỗi: {ex.Message}");
+                SafeAddMessage("system", "⚠ " + LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message);
             }
             finally { SetBusy(false); }
         }
@@ -484,27 +519,27 @@ namespace LocalDocAI.UI
 
             if (string.IsNullOrWhiteSpace(selectedText))
             {
-                ShowError("Vui lòng chọn văn bản cần dịch trong Word trước.");
+                ShowError(LocalDocAI.Persistence.LocalizationService.Get("noTextSelectTranslate"));
                 return;
             }
 
             var lang = PromptUserForLanguage();
             if (lang == null)
             {
-                AddMessage("system", "Đã hủy dịch.");
+                AddMessage("system", LocalDocAI.Persistence.LocalizationService.Get("cancelledTranslate"));
                 return;
             }
 
-            AddMessage("user", $"Dịch sang tiếng {lang}", switchToChat: true);
+            AddMessage("user", string.Format(LocalDocAI.Persistence.LocalizationService.Get("translatingTo"), lang), switchToChat: true);
             await RunTranslateAndInsertAsync(lang, selectedText);
         }
 
         private string PromptUserForLanguage()
         {
             var input = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nhập ngôn ngữ đích (vd: tiếng Anh, tiếng Pháp, tiếng Trung...):",
-                "Dịch văn bản",
-                "tiếng Anh");
+                LocalDocAI.Persistence.LocalizationService.Get("translateTargetLang"),
+                LocalDocAI.Persistence.LocalizationService.Get("translateTitle"),
+                LocalDocAI.Persistence.LocalizationService.Get("defaultLang"));
             if (string.IsNullOrWhiteSpace(input)) return null;
 
             var normalized = input.Trim().ToLower();
@@ -527,7 +562,7 @@ namespace LocalDocAI.UI
         {
             try
             {
-                SetBusy(true, $"Đang dịch sang {targetLanguage}...");
+                SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("translatingTo"), targetLanguage));
 
                 var messages = _promptBuilder.BuildTranslatePrompt(selectedText, targetLanguage);
                 var raw = await _aiClient.ChatAsync(messages, _cts.Token);
@@ -535,7 +570,7 @@ namespace LocalDocAI.UI
                 var translatedParagraphs = ParseTranslatedParagraphs(raw);
                 if (translatedParagraphs.Count == 0)
                 {
-                    ShowError("Không nhận được bản dịch hợp lệ từ AI.");
+                    ShowError(LocalDocAI.Persistence.LocalizationService.Get("noText"));
                     SetBusy(false);
                     return;
                 }
@@ -543,7 +578,7 @@ namespace LocalDocAI.UI
                 var doc = ThisAddIn.Instance.ActiveDoc;
                 if (doc == null)
                 {
-                    ShowError("Không có tài liệu đang mở.");
+                    ShowError(LocalDocAI.Persistence.LocalizationService.Get("noDocOpen"));
                     SetBusy(false);
                     return;
                 }
@@ -551,7 +586,7 @@ namespace LocalDocAI.UI
                 var sel = ThisAddIn.Instance.WordApp.Selection;
                 if (sel == null || sel.Type != Word.WdSelectionType.wdSelectionNormal)
                 {
-                    ShowError("Vui lòng chọn văn bản cần dịch.");
+                    ShowError(LocalDocAI.Persistence.LocalizationService.Get("noTextSelectTranslate"));
                     SetBusy(false);
                     return;
                 }
@@ -561,12 +596,12 @@ namespace LocalDocAI.UI
 
                 if (count == 0)
                 {
-                    ShowError("Không tìm thấy đoạn văn trong vùng chọn.");
+                    ShowError(LocalDocAI.Persistence.LocalizationService.Get("noParagraphFound"));
                     SetBusy(false);
                     return;
                 }
 
-                SetBusy(true, $"Đang chèn {count} đoạn dịch...");
+                SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("insertingTranslations"), count));
 
                 // Insert from end to start to keep ranges valid
                 for (int i = count; i >= 1; i--)
@@ -583,13 +618,13 @@ namespace LocalDocAI.UI
                     catch { }
                 }
 
-                AddMessage("assistant", $"✓ Đã dịch và chèn {count} đoạn văn sau mỗi đoạn gốc (tiếng {targetLanguage}).");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("translationDone"), count, targetLanguage));
             }
-            catch (OperationCanceledException) { SafeAddMessage("assistant", "Đã dừng dịch."); }
+            catch (OperationCanceledException) { SafeAddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("cancelledTranslate")); }
             catch (Exception ex)
             {
                 WriteLog($"Translate EXCEPTION: {ex.GetType().Name}: {ex.Message}");
-                ShowError("Lỗi dịch: " + ex.Message);
+                ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message);
             }
             finally { SetBusy(false); }
         }
@@ -618,20 +653,19 @@ namespace LocalDocAI.UI
         private async Task<string> ExecuteChatActionsAsync(List<ChatAction> actions)
         {
             var doc = ThisAddIn.Instance.ActiveDoc;
-            if (doc == null) return "⚠ Không có tài liệu đang mở.";
+            if (doc == null) return "⚠ " + LocalDocAI.Persistence.LocalizationService.Get("noDocOpen");
 
-            // Show confirmation dialog
             var actionList = string.Join("\n", actions.ConvertAll(a =>
                 $"• {a.Description ?? a.Type}" + (a.Find != null ? $": \"{Truncate(a.Find, 40)}\"" : "")));
 
             var confirm = System.Windows.Forms.MessageBox.Show(
-                $"Thực hiện {actions.Count} thao tác sau?\n\n{actionList}",
-                "Xác nhận thao tác Word",
+                string.Format(LocalDocAI.Persistence.LocalizationService.Get("performingActions"), actions.Count) + "\n\n" + actionList,
+                LocalDocAI.Persistence.LocalizationService.Get("error") + " - " + LocalDocAI.Persistence.LocalizationService.Get("btnReviewDocument"),
                 System.Windows.Forms.MessageBoxButtons.YesNo,
                 System.Windows.Forms.MessageBoxIcon.Question);
 
             if (confirm != System.Windows.Forms.DialogResult.Yes)
-                return "Đã hủy thao tác.";
+                return LocalDocAI.Persistence.LocalizationService.Get("cancelledTranslate");
 
             var results = new System.Text.StringBuilder();
             int ok = 0, fail = 0;
@@ -642,17 +676,17 @@ namespace LocalDocAI.UI
                 {
                     bool success = await Task.Run(() => ExecuteSingleAction(doc, action));
                     if (success) ok++;
-                    else { fail++; results.AppendLine($"⚠ Không tìm thấy: \"{Truncate(action.Find, 40)}\""); }
+                    else { fail++; results.AppendLine("⚠ " + LocalDocAI.Persistence.LocalizationService.Get("noParagraphFound") + $": \"{Truncate(action.Find, 40)}\""); }
                 }
                 catch (Exception ex)
                 {
                     fail++;
-                    results.AppendLine($"⚠ Lỗi ({action.Type}): {ex.Message}");
+                    results.AppendLine("⚠ " + string.Format(LocalDocAI.Persistence.LocalizationService.Get("error") + " ({0}): {1}", action.Type, ex.Message));
                 }
             }
 
-            if (ok > 0) results.Insert(0, $"✓ Đã thực hiện {ok} thao tác thành công.\n");
-            if (fail > 0) results.AppendLine($"✗ {fail} thao tác thất bại.");
+            if (ok > 0) results.Insert(0, string.Format(LocalDocAI.Persistence.LocalizationService.Get("actionSuccess"), ok) + "\n");
+            if (fail > 0) results.AppendLine(string.Format(LocalDocAI.Persistence.LocalizationService.Get("actionFailed"), fail));
             return results.ToString().Trim();
         }
 
@@ -727,7 +761,7 @@ namespace LocalDocAI.UI
 
         private async Task RunSkillAsync(Skill skill)
         {
-            SetBusy(true, $"Đang chạy skill: {skill.Name}...");
+            SetBusy(true, string.Format(LocalDocAI.Persistence.LocalizationService.Get("runningSkill"), skill.Name));
             try
             {
                 _cts = new CancellationTokenSource();
@@ -742,19 +776,19 @@ namespace LocalDocAI.UI
                     {
                         _currentSuggestions = result.Suggestions;
                         ShowSuggestions(result.Suggestions);
-                        AddMessage("assistant", $"Skill '{skill.Name}' hoàn tất. {result.Suggestions.Count} vấn đề.");
+                        AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("skillDone"), skill.Name, result.Suggestions.Count + " " + LocalDocAI.Persistence.LocalizationService.Get("foundIssuesReview").Replace("{0}", "").Trim()));
                     }
                     else
                     {
-                        AddMessage("assistant", result.Summary ?? $"Skill '{skill.Name}' hoàn tất.");
+                        AddMessage("assistant", result.Summary ?? string.Format(LocalDocAI.Persistence.LocalizationService.Get("skillDone"), skill.Name, ""));
                     }
                 }
                 else
                 {
-                    ShowError("Skill lỗi: " + result.ErrorMessage);
+                    ShowError(LocalDocAI.Persistence.LocalizationService.Get("skillError") + ": " + result.ErrorMessage);
                 }
             }
-            catch (Exception ex) { ShowError("Lỗi: " + ex.Message); }
+            catch (Exception ex) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("error") + ": " + ex.Message); }
             finally { SetBusy(false); }
         }
 
@@ -839,10 +873,10 @@ namespace LocalDocAI.UI
             {
                 s.Status = SuggestionStatus.Accepted;
                 ((Control)sender).Parent?.Controls.Remove((Control)sender);
-                AddMessage("assistant", $"Đã áp dụng Track Change: \"{s.RangeText}\"");
+                AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("mnuTrackChange") + ": \"{0}\"", s.RangeText));
             }
             else
-                ShowError("Không thể áp dụng — không tìm thấy đoạn văn.");
+                ShowError(LocalDocAI.Persistence.LocalizationService.Get("noParagraphFound"));
         }
 
         private void OnAddComment(object sender, Suggestion s)
@@ -854,10 +888,10 @@ namespace LocalDocAI.UI
             {
                 s.Status = SuggestionStatus.Accepted;
                 ((Control)sender).Parent?.Controls.Remove((Control)sender);
-                AddMessage("assistant", "Đã thêm comment.");
+                AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("mnuComment") + ".");
             }
             else
-                ShowError("Không thể thêm comment — không tìm thấy đoạn văn.");
+                ShowError(LocalDocAI.Persistence.LocalizationService.Get("noParagraphFound"));
         }
 
         private void OnHighlight(object sender, Suggestion s)
@@ -866,7 +900,7 @@ namespace LocalDocAI.UI
             if (doc == null) return;
             var color = _highlightSvc.GetColorBySeverity(s.SeverityStr);
             bool ok = _highlightSvc.HighlightText(doc, s.RangeText, color);
-            if (ok) AddMessage("assistant", "Đã highlight.");
+            if (ok) AddMessage("assistant", LocalDocAI.Persistence.LocalizationService.Get("mnuHighlight") + ".");
         }
 
         private void OnIgnore(object sender, Suggestion s)
@@ -900,11 +934,11 @@ namespace LocalDocAI.UI
             var safe = _currentSuggestions
                 .Where(s => s.SafeToAutoApply && s.Status == SuggestionStatus.Pending)
                 .ToList();
-            if (safe.Count == 0) { ShowError("Không có gợi ý nào an toàn để tự động áp dụng."); return; }
+            if (safe.Count == 0) { ShowError(LocalDocAI.Persistence.LocalizationService.Get("noText")); return; }
             int n = _trackChange.ApplyMultiple(doc, safe);
             foreach (var s in safe) s.Status = SuggestionStatus.Accepted;
             ShowSuggestions(_currentSuggestions.Where(s => s.Status == SuggestionStatus.Pending).ToList());
-            AddMessage("assistant", $"Đã áp dụng {n} sửa đổi an toàn.");
+            AddMessage("assistant", string.Format(LocalDocAI.Persistence.LocalizationService.Get("mnuApplyAll") + ". {0}", n));
         }
 
         // ─── UI Helpers ───────────────────────────────────────────────────
@@ -942,9 +976,8 @@ namespace LocalDocAI.UI
         private void ShowChatError(string msg)
         {
             if (InvokeRequired) { Invoke((Action)(() => ShowChatError(msg))); return; }
-            lblProgress.Text = "Lỗi";
+            lblProgress.Text = LocalDocAI.Persistence.LocalizationService.Get("error");
             lblProgress.ForeColor = Color.FromArgb(220, 38, 38);
-            // Show error as a visible message in the chat area
             var errMsg = new ChatMessageControl("system", "⚠ " + msg);
             errMsg.Width = Math.Max(200, panelChat.ClientSize.Width - 8);
             errMsg.Location = new Point(4, GetChatBottom());

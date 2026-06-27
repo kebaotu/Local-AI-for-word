@@ -140,6 +140,7 @@
     <Compile Include="Skills\SkillManager.cs" />
     <Compile Include="Skills\SkillRunner.cs" />
     <Compile Include="Persistence\SettingsService.cs" />
+    <Compile Include="Persistence\LocalizationService.cs" />
     <Compile Include="Persistence\LocalCacheService.cs" />
     <Compile Include="UI\Controls\ChatMessageControl.cs" />
     <Compile Include="UI\Controls\ChatMessageControl.Designer.cs">

@@ -149,6 +149,7 @@ namespace LocalDocAI
             var dlg = new UI.SettingsDialog();
             dlg.ShowDialog();
             _ribbon?.Invalidate();
+            GetSidebar()?.UpdateLanguage();
         }
 
         public string GetLabel(IRibbonControl control)

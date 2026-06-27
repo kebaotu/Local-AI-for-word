@@ -47,7 +47,7 @@ namespace LocalDocAI.UI
 
             lblTitle = new Label
             {
-                Text = "Local Word AI",
+                Text = LocalDocAI.Persistence.LocalizationService.Get("sidebarTitle"),
                 Font = new Font("Segoe UI", 11f, FontStyle.Bold),
                 ForeColor = Color.White,
                 Location = new Point(8, 6),
@@ -65,7 +65,7 @@ namespace LocalDocAI.UI
 
             lblStatus = new Label
             {
-                Text = "Đang kiểm tra...",
+                Text = LocalDocAI.Persistence.LocalizationService.Get("lblStatus"),
                 Font = new Font("Segoe UI", 7.5f),
                 ForeColor = Color.Gray,
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
@@ -93,15 +93,15 @@ namespace LocalDocAI.UI
                 Padding = new Padding(0)
             };
 
-            btnReviewSel = MakeActionBtn("Review chọn", btnReviewSel_Click);
-            btnReviewDoc = MakeActionBtn("Review tài liệu", btnReviewDoc_Click);
-            btnRewrite = MakeActionBtn("Rewrite", btnRewrite_Click);
-            btnShorten = MakeActionBtn("Rút gọn", btnShorten_Click);
-            btnFormal = MakeActionBtn("Trang trọng", btnFormal_Click);
-            btnPassive = MakeActionBtn("Câu bị động", btnPassive_Click);
-            btnComments = MakeActionBtn("Comments", btnComments_Click);
-            btnChanges = MakeActionBtn("Track Changes", btnChanges_Click);
-            btnFinalCheck = MakeActionBtn("Final Check", btnFinalCheck_Click, Color.FromArgb(37, 99, 235));
+            btnReviewSel = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnReviewSelection"), btnReviewSel_Click);
+            btnReviewDoc = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnReviewDocument"), btnReviewDoc_Click);
+            btnRewrite = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnRewriteTab"), btnRewrite_Click);
+            btnShorten = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnShorten"), btnShorten_Click);
+            btnFormal = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnFormal"), btnFormal_Click);
+            btnPassive = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnPassive"), btnPassive_Click);
+            btnComments = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnComments"), btnComments_Click);
+            btnChanges = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnChanges"), btnChanges_Click);
+            btnFinalCheck = MakeActionBtn(LocalDocAI.Persistence.LocalizationService.Get("btnFinalCheck"), btnFinalCheck_Click, Color.FromArgb(37, 99, 235));
 
             flowQuickActions.Controls.AddRange(new Control[] {
                 btnReviewSel, btnReviewDoc, btnRewrite, btnShorten,
@@ -113,16 +113,16 @@ namespace LocalDocAI.UI
             // ── Progress ──
             var pnlProgress = new Panel { Dock = DockStyle.Top, Height = 24, BackColor = Color.FromArgb(248, 250, 252) };
             progressBar = new ProgressBar { Style = ProgressBarStyle.Marquee, Dock = DockStyle.Left, Width = 120, Visible = false };
-            btnStop = new Button { Text = "■ Stop", Dock = DockStyle.Left, Width = 60, FlatStyle = FlatStyle.Flat, Visible = false, Font = new Font("Segoe UI", 7.5f) };
+            btnStop = new Button { Text = "■ " + LocalDocAI.Persistence.LocalizationService.Get("btnStop"), Dock = DockStyle.Left, Width = 60, FlatStyle = FlatStyle.Flat, Visible = false, Font = new Font("Segoe UI", 7.5f) };
             lblProgress = new Label { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 7.5f), ForeColor = Color.Gray, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(4, 0, 0, 0) };
             btnStop.Click += btnStop_Click;
             pnlProgress.Controls.AddRange(new Control[] { lblProgress, btnStop, progressBar });
 
             // ── Tab control ──
             tabMain = new TabControl { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 8.5f) };
-            tabChat = new TabPage { Text = "Chat", Padding = new Padding(0) };
-            tabSuggestions = new TabPage { Text = "Gợi ý", Padding = new Padding(0) };
-            tabSkills = new TabPage { Text = "Skills", Padding = new Padding(4) };
+            tabChat = new TabPage { Text = LocalDocAI.Persistence.LocalizationService.Get("lblChat").Replace(":", ""), Padding = new Padding(0) };
+            tabSuggestions = new TabPage { Text = LocalDocAI.Persistence.LocalizationService.Get("lblSuggestions").Replace(":", ""), Padding = new Padding(0) };
+            tabSkills = new TabPage { Text = LocalDocAI.Persistence.LocalizationService.Get("lblSkills").Replace(":", ""), Padding = new Padding(4) };
 
             // Chat tab
             panelChat = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Color.White };
@@ -133,7 +133,7 @@ namespace LocalDocAI.UI
             var pnlSugTop = new Panel { Dock = DockStyle.Top, Height = 28, BackColor = Color.White };
             btnApplyAllSafe = new Button
             {
-                Text = "Áp dụng tất cả an toàn",
+                Text = LocalDocAI.Persistence.LocalizationService.Get("mnuApplyAll"),
                 Dock = DockStyle.Fill,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 8f),
@@ -148,17 +148,17 @@ namespace LocalDocAI.UI
             tabSuggestions.Controls.Add(pnlSugTop);
 
             // Skills tab
-            var lblSkillsHint = new Label { Text = "Chọn skill:", AutoSize = true, Location = new Point(0, 4), Font = new Font("Segoe UI", 8.5f) };
+            var lblSkillsHint = new Label { Text = LocalDocAI.Persistence.LocalizationService.Get("lblSkills"), AutoSize = true, Location = new Point(0, 4), Font = new Font("Segoe UI", 8.5f) };
             cmbSkills = new ComboBox { Location = new Point(0, 22), Width = 280, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 8.5f) };
             btnRunSkill = new Button
             {
-                Text = "Chạy Skill",
+                Text = LocalDocAI.Persistence.LocalizationService.Get("btnRunSkill"),
                 Location = new Point(0, 50),
                 Size = new Size(120, 28),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(37, 99, 235),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 8.5f)
+                Font = new Font("Segoe UI", 8f)
             };
             btnRunSkill.Click += btnRunSkill_Click;
             tabSkills.Controls.AddRange(new Control[] { lblSkillsHint, cmbSkills, btnRunSkill });
@@ -178,7 +178,7 @@ namespace LocalDocAI.UI
             txtInput.KeyDown += txtInput_KeyDown;
             btnSend = new Button
             {
-                Text = "Gửi",
+                Text = LocalDocAI.Persistence.LocalizationService.Get("btnSend"),
                 Dock = DockStyle.Right,
                 Width = 56,
                 FlatStyle = FlatStyle.Flat,
